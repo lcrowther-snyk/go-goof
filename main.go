@@ -151,3 +151,32 @@ func main() {
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
+func sqliHandler(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+
+	// SQL Injection vulnerability: directly concatenating user input into the query
+	query := fmt.Sprintf("SELECT * FROM products WHERE id='%s'", id)
+
+	db, err := sql.Open("mysql", "user:password@/dbname")
+	if err != nil {
+		http.Error(w, "Database connection error", http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	rows, err := db.Query(query)
+	if err != nil {
+		http.Error(w, "Query execution error", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var product string
+		if err := rows.Scan(&product); err != nil {
+			http.Error(w, "Error scanning row", http.StatusInternalServerError)
+			return
+		}
+		fmt.Fprintf(w, "Product: %s\n", product)
+	}
+}
