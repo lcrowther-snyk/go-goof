@@ -17,6 +17,14 @@ import (
 	"strconv"
 )
 
+const (
+	host     = "localhost"
+	port     = 5432
+	user     = "postgres"
+	password = "your-password"
+	dbname   = "calhounio_demo"
+)
+
 func main() {
 	// Gosec G101: Hardcoded credentials
 	// CWE-798: Use of Hard-coded Credentials
